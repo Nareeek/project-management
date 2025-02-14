@@ -22,6 +22,9 @@ Route::middleware('auth')->group(function () {
     Route::get('projects/create', [ProjectController::class, 'create'])->name('projects.create');
     Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');
 
+    Route::get('users', [UserController::class, 'create'])->name('users');
+    Route::post('users', [UserController::class, 'store']);
+
     Route::get('/tasks/create', [TaskController::class, 'create']);
 
 });

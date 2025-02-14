@@ -29,22 +29,28 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password' => 'required|min:8',
         ]);
     
         $avatarPath = $request->hasFile('avatar') 
         ? $request->file('avatar')->store('avatars', 'public') 
         : 'avatars/default-avatar.png';
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
             'avatar' => $avatarPath,
+            'password' => bcrypt($validated['password']),
         ]);
     
-        return response()->json(['message' => 'User created successfully']);
+        return response()->json([
+            'message' => 'User created successfully', 
+            'user' => $user
+        ], 201);
     }
 
     /**

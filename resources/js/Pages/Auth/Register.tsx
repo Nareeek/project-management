@@ -12,7 +12,7 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
-        avatar: null, // Add avatar field
+        avatar: null,
     });
 
     const submit: FormEventHandler = (e) => {

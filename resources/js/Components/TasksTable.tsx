@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import CreateTask from '@/Pages/Tasks/CreateTask';
+import Notification from '@/Components/Notification';
 import axios from 'axios';
 
 export default function TasksTable({ tasks, projects, users, handlePagination }) {
@@ -8,6 +9,7 @@ export default function TasksTable({ tasks, projects, users, handlePagination })
     const [showTaskModal, setShowTaskModal] = useState(false);
     const [projectList, setProjectList] = useState(projects.data || []);
     const [userList, setUserList] = useState(users.data || []);
+    const [notifications, setNotifications] = useState([]);
     
     const fetchAllUsersAndProjects = async () => {
         try {
@@ -17,6 +19,10 @@ export default function TasksTable({ tasks, projects, users, handlePagination })
         } catch (error) {
             console.error("Error fetching users and projects:", error);
         }
+    };
+
+    const addNotification = (message, type) => {
+        setNotifications((prev) => [...prev, { id: Date.now(), message, type }]);
     };
 
     useEffect(() => {
@@ -35,14 +41,29 @@ export default function TasksTable({ tasks, projects, users, handlePagination })
     };
 
     const addTaskToState = (newTask) => {
+        if (!newTask || typeof newTask !== 'object' || !newTask.id || !newTask.title) {
+            addNotification("Failed to add task!", "error");
+            return;
+        }
+
         setSortedTasks((prevTasks) => {
             const isDuplicate = prevTasks.some(task => task.id === newTask.id);
             return isDuplicate ? prevTasks : [...prevTasks, newTask];
         });
+        addNotification("Task added successfully!", "success");
     };
 
     return (
         <div className="p-2 bg-white shadow rounded border">
+            {notifications.map(({ id, message, type }) => (
+                <Notification 
+                    key={id} 
+                    message={message} 
+                    type={type} 
+                    onClose={() => setNotifications((prev) => prev.filter(n => n.id !== id))} 
+                />
+            ))}
+
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-md font-semibold">Tasks</h3>
                 {/* Add Task Button */}

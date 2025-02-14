@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
 import CreateProject from '@/Pages/Projects/CreateProject';
+import Notification from '@/Components/Notification';
 
 export default function ProjectsTable({ projects, handlePagination }) {
     const [sortedProjects, setSortedProjects] = useState(projects.data || []);
     const [sortDirection, setSortDirection] = useState('asc');
     const [showProjectModal, setShowProjectModal] = useState(false);
+    const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
         setSortedProjects(prev => (projects.data?.length ? projects.data : prev));
     }, [projects]);
+
+    const addNotification = (message, type) => {
+        setNotifications((prev) => [...prev, { id: Date.now(), message, type }]);
+    };
 
     // Sorting function
     const toggleSort = () => {
@@ -23,7 +29,7 @@ export default function ProjectsTable({ projects, handlePagination }) {
 
     const addProjectToState = (newProject) => {
         if (!newProject || typeof newProject !== 'object' || !newProject.id || !newProject.name) {
-            console.error("Invalid project data received:", newProject);
+            addNotification("Failed to add project!", "error");
             return;
         }
 
@@ -38,10 +44,19 @@ export default function ProjectsTable({ projects, handlePagination }) {
             }
             return [...prevProjects, formattedProject];
         });
+        addNotification("Project added successfully!", "success");
     };
 
     return (
         <div className="p-2 bg-white shadow rounded border">
+            {notifications.map(({ id, message, type }) => (
+                <Notification 
+                    key={id} 
+                    message={message} 
+                    type={type} 
+                    onClose={() => setNotifications((prev) => prev.filter(n => n.id !== id))} 
+                />
+            ))}
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-md font-semibold">Projects</h3>
                 {/* Add Project Button */}

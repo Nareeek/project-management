@@ -8,6 +8,9 @@ import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
     const { users = { data: [], links: [] }, projects = { data: [], links: [] }, tasks = { data: [], links: [] } } = usePage().props;
+    const [userList, setUserList] = useState(users);
+    const [projectList, setProjectList] = useState(projects);
+    const [taskList, setTaskList] = useState(tasks);
 
     // Get initial section visibility from localStorage or default to true
     const [showUsers, setShowUsers] = useState(() => {
@@ -20,6 +23,12 @@ export default function Dashboard() {
         return localStorage.getItem('showTasks') === 'false' ? false : true;
     });
 
+    useEffect(() => {
+        setUserList(prev => users.length ? users : prev);
+        setProjectList(prev => projects.length ? projects : prev);
+        setTaskList(prev => tasks.length ? tasks : prev);
+    }, [users, projects, tasks]);
+
     // Store section visibility in localStorage to persist across navigation
     useEffect(() => {
         localStorage.setItem('showUsers', showUsers);
@@ -31,14 +40,26 @@ export default function Dashboard() {
         if (!url) return;
     
         // Use Inertia's get() to update the state without full reload
-        router.get(url, {}, {
-            only: ['users', 'projects', 'tasks'],  // Only update these sections
-            preserveState: true,  // Keep component state intact
-            preserveScroll: true, // Keep scroll position
-            replace: true,        // Replace the URL without reloading the page
+        router.get(url, { section: section }, {
+            only: [section], 
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            onSuccess: (page) => {
+                if (section === 'users') {
+                    setUserList(page.props[section]);
+                } else if (section === 'projects') {
+                    setProjectList(page.props[section]);
+                } else if (section === 'tasks') {
+                    setTaskList(page.props[section]);
+                }
+            },
+            onError: (errors) => {
+                console.error('Pagination error:', errors);
+            }
         });
     };
-    
+
 
     return (
         <AuthenticatedLayout>
@@ -72,21 +93,21 @@ export default function Dashboard() {
                 {/* Users Section */}
                 {showUsers && (
                     <div className="bg-white shadow-md rounded p-4 mb-6">
-                        <UsersTable users={users} handlePagination={handlePagination} />
+                        <UsersTable users={userList} handlePagination={handlePagination} />
                     </div>
                 )}
 
                 {/* Projects Section */}
                 {showProjects && (
                     <div className="bg-white shadow-md rounded p-4 mb-6">
-                        <ProjectsTable projects={projects} handlePagination={handlePagination} />
+                        <ProjectsTable projects={projectList} handlePagination={handlePagination} />
                     </div>
                 )}
 
                 {/* Tasks Section */}
                 {showTasks && (
                     <div className="bg-white shadow-md rounded p-4 mb-6">
-                        <TasksTable tasks={tasks} handlePagination={handlePagination} />
+                        <TasksTable tasks={taskList} handlePagination={handlePagination} projects={projectList} users={userList} />
                     </div>
                 )}
             </div>

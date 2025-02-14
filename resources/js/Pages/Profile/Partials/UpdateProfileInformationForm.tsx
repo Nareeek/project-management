@@ -124,14 +124,12 @@ export default function UpdateProfileInformation({
                 <div>
                     <InputLabel htmlFor="avatar" value="Avatar" />
                     
-                    {/* ✅ Show Current Avatar */}
                     <img 
                         src={user.avatar ? `/storage/${user.avatar}` : `/images/default-avatar.png`} 
                         className="w-16 h-16 rounded-full mb-2"
                         alt="User Avatar"
                     />
 
-                    {/* ✅ File Input to Upload New Avatar */}
                     <input 
                         id="avatar"
                         type="file"

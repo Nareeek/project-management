@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Project;
 
 class TaskController extends Controller
 {
@@ -17,7 +19,7 @@ class TaskController extends Controller
             ->orderBy($sort, 'asc')
             ->paginate(10, ['*'], 'tasks_page'); // Use 'tasks_page' for pagination key
     
-        return inertia('Dashboard', compact('tasks')); // Pass paginated tasks to frontend
+        return inertia('Dashboard', compact('tasks'));
     }
 
     /**
@@ -25,7 +27,10 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        return response()->json([
+            'users' => User::all(),
+            'projects' => Project::all(),
+        ]);
     }
 
     /**
@@ -33,20 +38,22 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'project_id' => 'required|exists:projects,id',
-            'user_ids' => 'array',
+            'user_ids' => 'required|array',
             'user_ids.*' => 'exists:users,id',
         ]);
     
-        $task = Task::create($request->only('title', 'project_id'));
+        $task = Task::create([
+            'title' => $validated['title'],
+            'project_id' => $validated['project_id'],
+        ]);
     
         if ($request->has('user_ids')) {
-            $task->users()->attach($request->user_ids);
+            $task->users()->attach($validated['user_ids']);
         }
-    
-        return response()->json(['message' => 'Task created successfully']);
+        return response()->json(['task' => $task->load(['project', 'users'])]);
     }
 
     /**

@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 
 export default function UsersTable({ users, handlePagination }) {
     const [sortedUsers, setSortedUsers] = useState(users.data || []);
-    const [sortDirection, setSortDirection] = useState("asc"); // Track sorting order
+    const [sortDirection, setSortDirection] = useState("asc");
 
 
     useEffect(() => {
-        setSortedUsers(users.data || []); // Update when users prop changes
+        setSortedUsers(prev => (users.data?.length ? users.data : prev));
     }, [users]);
 
-    // Toggle sorting order
     const toggleSort = () => {
         const sorted = [...sortedUsers].sort((a, b) =>
             sortDirection === "asc"
@@ -17,7 +16,7 @@ export default function UsersTable({ users, handlePagination }) {
                 : b.name.localeCompare(a.name)
         );
         setSortedUsers(sorted);
-        setSortDirection(sortDirection === "asc" ? "desc" : "asc"); // Toggle order
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     };
 
     return (
@@ -27,7 +26,7 @@ export default function UsersTable({ users, handlePagination }) {
                 <h3 className="text-md font-semibold">Users</h3>
                 <button
                     className="bg-green-500 text-white px-4 py-2 rounded"
-                    onClick={() => window.location.href = route('users.create')} // Redirect to Add User form
+                    onClick={() => window.location.href = route('users.create')}
                 >
                     + Add User
                 </button>

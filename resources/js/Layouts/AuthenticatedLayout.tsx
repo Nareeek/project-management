@@ -10,7 +10,6 @@ export default function Authenticated({
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const user = usePage().props?.auth?.user ?? null;
-    // console.table(usePage().props);
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -42,7 +41,7 @@ export default function Authenticated({
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md items-center space-x-2">
-                                            {/* ✅ Show Avatar Near Username */}
+                                            {/* Show Avatar Near Username */}
                                             <img 
                                                 src={user.avatar ? `/storage/${user.avatar}` : `/images/default-avatar.png`} 
                                                 className="w-8 h-8 rounded-full"

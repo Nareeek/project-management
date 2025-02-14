@@ -20,6 +20,6 @@ class Task extends Model
     // Define relationship: Task has many Users
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'task_user');
     }
 }

@@ -1,11 +1,26 @@
 import { useState, useEffect } from 'react';
+import CreateTask from '@/Pages/Tasks/CreateTask';
+import axios from 'axios';
 
-export default function TasksTable({ tasks, handlePagination }) {
+export default function TasksTable({ tasks, projects, users, handlePagination }) {
     const [sortedTasks, setSortedTasks] = useState(tasks.data || []);
-    const [sortDirection, setSortDirection] = useState('asc'); // Track sorting direction
+    const [sortDirection, setSortDirection] = useState('asc');
+    const [showTaskModal, setShowTaskModal] = useState(false);
+    const [projectList, setProjectList] = useState(projects.data || []);
+    const [userList, setUserList] = useState(users.data || []);
+    
+    const fetchAllUsersAndProjects = async () => {
+        try {
+            const { data } = await axios.get('/tasks/create');
+            setProjectList(data.projects);
+            setUserList(data.users);
+        } catch (error) {
+            console.error("Error fetching users and projects:", error);
+        }
+    };
 
     useEffect(() => {
-        setSortedTasks(tasks.data || []);
+        setSortedTasks(prev => (tasks.data?.length ? tasks.data : prev));
     }, [tasks]);
 
     // Sorting function for Task Title
@@ -16,7 +31,14 @@ export default function TasksTable({ tasks, handlePagination }) {
                 : b.title.localeCompare(a.title)
         );
         setSortedTasks(sorted);
-        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc'); // Toggle sorting direction
+        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    };
+
+    const addTaskToState = (newTask) => {
+        setSortedTasks((prevTasks) => {
+            const isDuplicate = prevTasks.some(task => task.id === newTask.id);
+            return isDuplicate ? prevTasks : [...prevTasks, newTask];
+        });
     };
 
     return (
@@ -26,7 +48,10 @@ export default function TasksTable({ tasks, handlePagination }) {
                 {/* Add Task Button */}
                 <button
                     className="bg-green-500 text-white px-4 py-2 rounded"
-                    onClick={() => window.location.href = route('tasks.create')} // Redirect to create form
+                    onClick={async () => {
+                        await fetchAllUsersAndProjects();
+                        setShowTaskModal(true);
+                    }}
                 >
                     + Add Task
                 </button>
@@ -47,7 +72,7 @@ export default function TasksTable({ tasks, handlePagination }) {
                 </thead>
                 <tbody>
                     {sortedTasks.map((task) => (
-                        <tr key={task.id} className="hover:bg-gray-100">
+                        <tr key={`${task.id}-${task.title}`} className="hover:bg-gray-100">
                             <td className="border border-gray-400 px-2 py-1 truncate" title={task.title}>
                                 {task.title}
                             </td>
@@ -87,6 +112,29 @@ export default function TasksTable({ tasks, handlePagination }) {
                     )
                 ))}
             </div>
+            {/* Task Creation Modal */}
+            {showTaskModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded shadow-lg max-w-md">
+                        <h2 className="text-2xl font-bold mb-4">Create Task</h2>
+                        {/* CreateTask Component (Form) */}
+                        <CreateTask 
+                            projects={projectList || []}
+                            users={userList || []}
+                            setShowTaskModal={setShowTaskModal}
+                            addTaskToState={addTaskToState}
+                        />
+
+                        {/* Close Button */}
+                        <button 
+                            onClick={() => setShowTaskModal(false)}
+                            className="mt-4 bg-gray-500 text-white px-4 py-2 rounded"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

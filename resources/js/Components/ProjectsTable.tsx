@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 
 export default function ProjectsTable({ projects, handlePagination }) {
     const [sortedProjects, setSortedProjects] = useState(projects.data || []);
-    const [sortDirection, setSortDirection] = useState('asc'); // Track sorting direction
+    const [sortDirection, setSortDirection] = useState('asc');
 
     useEffect(() => {
-        setSortedProjects(projects.data || []);
+        setSortedProjects(prev => (projects.data?.length ? projects.data : prev));
     }, [projects]);
 
     // Sorting function
@@ -16,7 +16,7 @@ export default function ProjectsTable({ projects, handlePagination }) {
                 : b.name.localeCompare(a.name)
         );
         setSortedProjects(sorted);
-        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc'); // Toggle sorting direction
+        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     };
 
     return (
@@ -26,7 +26,7 @@ export default function ProjectsTable({ projects, handlePagination }) {
                 {/* Add Project Button */}
                 <button
                     className="bg-green-500 text-white px-4 py-2 rounded"
-                    onClick={() => window.location.href = route('projects.create')} // Redirect to create form
+                    onClick={() => window.location.href = route('projects.create')}
                 >
                     + Add Project
                 </button>

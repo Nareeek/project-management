@@ -35,11 +35,9 @@ class UserController extends Controller
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
     
-        $avatarPath = null;
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-        }
-    
+        $avatarPath = $request->hasFile('avatar') 
+        ? $request->file('avatar')->store('avatars', 'public') 
+        : 'avatars/default-avatar.png';
         User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -76,10 +74,9 @@ class UserController extends Controller
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
     
-        if ($request->hasFile('avatar')) {
-            $user->avatar = $request->file('avatar')->store('avatars', 'public');
-        }
-    
+        $user->avatar = $request->hasFile('avatar') 
+        ? $request->file('avatar')->store('avatars', 'public') 
+        : 'avatars/default-avatar.png';
         $user->update([
             'name' => $request->name,
             'email' => $request->email,

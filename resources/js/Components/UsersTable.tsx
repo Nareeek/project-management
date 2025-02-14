@@ -57,6 +57,7 @@ export default function UsersTable({ users, handlePagination }) {
                                         
                                         : '/images/default-avatar.png'
                                     }
+                                    onError={(e) => e.currentTarget.src = '/images/default-avatar.jpg'}
                                     width="40"
                                     className="rounded-full"
                                     alt="User Avatar"

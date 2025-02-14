@@ -39,7 +39,6 @@ export default function UpdateProfileInformation({
             data: formData,
             forceFormData: true,
             onSuccess: () => {
-                // ✅ Refresh the avatar preview after saving
                 if (data.avatar) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -126,6 +125,7 @@ export default function UpdateProfileInformation({
                     
                     <img 
                         src={user.avatar ? `/storage/${user.avatar}` : `/images/default-avatar.png`} 
+                        onError={(e) => e.currentTarget.src = '/images/default-avatar.jpg'}
                         className="w-16 h-16 rounded-full mb-2"
                         alt="User Avatar"
                     />

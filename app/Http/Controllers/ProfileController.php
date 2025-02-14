@@ -30,12 +30,9 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
-        
-        // ✅ Handle Avatar Upload
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $avatarPath;
-        }
+        $user->avatar = $request->hasFile('avatar') 
+        ? $request->file('avatar')->store('avatars', 'public') 
+        : 'avatars/default-avatar.png';
     
         $user->fill($request->only(['name', 'email']));
     

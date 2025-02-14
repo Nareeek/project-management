@@ -43,7 +43,10 @@ export default function Authenticated({
                                         <span className="inline-flex rounded-md items-center space-x-2">
                                             {/* Show Avatar Near Username */}
                                             <img 
-                                                src={user.avatar ? `/storage/${user.avatar}` : `/images/default-avatar.png`} 
+                                                src={user.avatar && user.avatar !== 'avatars/default-avatar.png' ? `/storage/${user.avatar}` : `/images/default-avatar.png`}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = '/images/default-avatar.png';
+                                                }}
                                                 className="w-8 h-8 rounded-full"
                                                 alt="User Avatar"
                                             />

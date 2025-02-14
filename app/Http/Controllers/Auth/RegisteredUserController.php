@@ -37,12 +37,9 @@ class RegisteredUserController extends Controller
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
     
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-        
-        } else {
-            $avatarPath = 'default-avatar.png';
-        }        
+        $avatarPath = $request->hasFile('avatar') 
+        ? $request->file('avatar')->store('avatars', 'public') 
+        : 'avatars/default-avatar.png';     
     
         $user = new User();
         $user->name = $request->name;

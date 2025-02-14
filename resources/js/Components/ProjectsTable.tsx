@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import CreateProject from '@/Pages/Projects/CreateProject';
 
 export default function ProjectsTable({ projects, handlePagination }) {
     const [sortedProjects, setSortedProjects] = useState(projects.data || []);
     const [sortDirection, setSortDirection] = useState('asc');
+    const [showProjectModal, setShowProjectModal] = useState(false);
 
     useEffect(() => {
         setSortedProjects(prev => (projects.data?.length ? projects.data : prev));
@@ -19,6 +21,25 @@ export default function ProjectsTable({ projects, handlePagination }) {
         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     };
 
+    const addProjectToState = (newProject) => {
+        if (!newProject || typeof newProject !== 'object' || !newProject.id || !newProject.name) {
+            console.error("Invalid project data received:", newProject);
+            return;
+        }
+
+        const formattedProject = {
+            ...newProject,
+            description: newProject.description ?? "No description available"
+        };
+    
+        setSortedProjects(prevProjects => {
+            if (prevProjects.some(project => project.id === newProject.id)) {
+                return prevProjects;
+            }
+            return [...prevProjects, formattedProject];
+        });
+    };
+
     return (
         <div className="p-2 bg-white shadow rounded border">
             <div className="flex justify-between items-center mb-4">
@@ -26,7 +47,7 @@ export default function ProjectsTable({ projects, handlePagination }) {
                 {/* Add Project Button */}
                 <button
                     className="bg-green-500 text-white px-4 py-2 rounded"
-                    onClick={() => window.location.href = route('projects.create')}
+                    onClick={() => setShowProjectModal(true)}
                 >
                     + Add Project
                 </button>
@@ -79,6 +100,29 @@ export default function ProjectsTable({ projects, handlePagination }) {
                     )
                 ))}
             </div>
+            
+            {/* Project Creation Modal */}
+            {showProjectModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded shadow-lg max-w-md">
+                        <h2 className="text-2xl font-bold mb-4">Create Project</h2>
+                        
+                        {/* CreateProject Component (Form) */}
+                        <CreateProject
+                            setShowProjectModal={setShowProjectModal}
+                            addProjectToState={addProjectToState}
+                        />
+
+                        {/* Close Button */}
+                        <button 
+                            onClick={() => setShowProjectModal(false)}
+                            className="mt-4 bg-gray-500 text-white px-4 py-2 rounded"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

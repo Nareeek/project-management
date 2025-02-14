@@ -33,11 +33,18 @@ class ProjectController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'description' => 'string|max:255',
         ]);
     
-        Project::create($request->only('name'));
+        $project = Project::create([
+            'name' => $request->input('name'),
+            'description' => $request->input('description')
+        ]);
     
-        return response()->json(['message' => 'Project created successfully']);
+        return response()->json([
+            'message' => 'Project created successfully',
+            'project' => $project
+        ]);
     }
 
     /**

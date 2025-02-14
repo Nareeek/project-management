@@ -125,8 +125,8 @@ export default function UpdateProfileInformation({
                     
                     <img 
                         src={user.avatar ? `/storage/${user.avatar}` : `/images/default-avatar.png`} 
-                        onError={(e) => e.currentTarget.src = '/images/default-avatar.jpg'}
-                        className="w-16 h-16 rounded-full mb-2"
+                        onError={(e) => e.currentTarget.src = '/images/default-avatar.png'}
+                        className="w-60 h-60 rounded object-cover border border-gray-300 shadow-md"
                         alt="User Avatar"
                     />
 

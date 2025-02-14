@@ -51,17 +51,32 @@ export default function UsersTable({ users, handlePagination }) {
                             <td className="border border-gray-400 px-2 py-1 truncate" title={user.name}>{user.name}</td>
                             <td className="border border-gray-400 px-2 py-1 truncate" title={user.email}>{user.email}</td>
                             <td className="border border-gray-400 px-2 py-1">
-                                <img
-                                    src={user.avatar && !user.avatar.includes('default-avatar.png')
-                                        ? `/storage/${user.avatar}`
-                                        
-                                        : '/images/default-avatar.png'
-                                    }
-                                    onError={(e) => e.currentTarget.src = '/images/default-avatar.jpg'}
-                                    width="40"
-                                    className="rounded-full"
-                                    alt="User Avatar"
-                                />
+                                <div className="relative group">
+                                    {/* Small Avatar */}
+                                    <img
+                                        src={user.avatar && !user.avatar.includes('default-avatar.png')
+                                            ? `/storage/${user.avatar}`
+                                            : '/images/default-avatar.png'
+                                        }
+                                        onError={(e) => e.currentTarget.src = '/images/default-avatar.jpg'}
+                                        width="40"
+                                        className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
+                                        alt="User Avatar"
+                                    />
+
+                                    {/* Hover Enlarged Avatar */}
+                                    <div className="absolute hidden group-hover:flex items-center justify-center bg-white p-1 rounded-lg shadow-lg border border-gray-300 top-[-30px] left-[50%] translate-x-[-50%] w-48 h-48 z-10">
+                                        <img
+                                            src={user.avatar && !user.avatar.includes('default-avatar.png')
+                                                ? `/storage/${user.avatar}`
+                                                : '/images/default-avatar.png'
+                                            }
+                                            onError={(e) => e.currentTarget.src = '/images/default-avatar.jpg'}
+                                            className="w-full h-full rounded object-cover"
+                                            alt="User Avatar Enlarged"
+                                        />
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     ))}

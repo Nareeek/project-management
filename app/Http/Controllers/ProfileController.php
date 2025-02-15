@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Http\JsonResponse;
 
 class ProfileController extends Controller
 {
@@ -27,12 +28,14 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request): RedirectResponse | JsonResponse
     {
         $user = $request->user();
-        $user->avatar = $request->hasFile('avatar') 
-        ? $request->file('avatar')->store('avatars', 'public') 
-        : 'avatars/default-avatar.png';
+    
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $avatarPath;
+        }
     
         $user->fill($request->only(['name', 'email']));
     
@@ -41,8 +44,16 @@ class ProfileController extends Controller
         }
     
         $user->save();
-    
-        return Redirect::route('profile.edit');
+
+        // If the request is AJAX-based (as with Axios) then updated user data instead of a redirect.
+        if ($request->wantsJson()) {
+            ob_clean();
+            return response()->json([
+                'user' => $user,
+                'status' => 'Profile updated successfully.'
+            ]);
+        }
+        return Redirect::route('profile.edit')->with('status', 'Profile updated successfully.');
     }
 
     /**

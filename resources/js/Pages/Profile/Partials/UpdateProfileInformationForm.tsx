@@ -4,56 +4,87 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Transition } from '@headlessui/react';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import Notification from '@/Components/Notification';
+import { FormEventHandler, useState } from 'react';
+import axios from 'axios';
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
     status,
     className = '',
+    onProfileUpdate,
 }: {
     mustVerifyEmail: boolean;
     status?: string;
     className?: string;
+    onProfileUpdate: (user: any) => void;
 }) {
     const user = usePage().props.auth.user;
+
+    const [avatarPreview, setAvatarPreview] = useState(
+        user.avatar ? `/storage/${user.avatar}` : '/images/default-avatar.png',
+
+      );
+    const [notification, setNotification] = useState(null);
+
 
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
             name: user.name,
             email: user.email,
-            avatar: null,
+            avatar: user.avatar,
         });
 
-    const submit: FormEventHandler = (e) => {
+    const hasChanged =
+        data.name !== user.name ||
+        data.email !== user.email ||
+        (data.avatar instanceof File);
+
+    const submit: FormEventHandler = async (e) => {
         e.preventDefault();
     
         const formData = new FormData();
-        formData.append('name', data.name || user.name); // Use existing value if empty
-        formData.append('email', data.email || user.email); // Use existing value if empty
-    
-        if (data.avatar) {
+        formData.append('name', data.name);
+        formData.append('email', data.email);
+
+
+        if (data.avatar && data.avatar instanceof File) {
             formData.append('avatar', data.avatar);
         }
-    
-        patch(route('profile.update'), {
-            data: formData,
-            forceFormData: true,
-            onSuccess: () => {
-                if (data.avatar) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const newAvatarUrl = e.target?.result as string;
-                        setData('avatar', newAvatarUrl);
-                    };
-                    reader.readAsDataURL(data.avatar);
-                }
-            },
-        });
+
+        // Include method override for PATCH
+        formData.append('_method', 'PATCH');
+
+        try {
+            const response = await axios.post(route('profile.update'), formData);
+
+            // Update the local avatar preview in case the server returns a new file path
+            setAvatarPreview(
+                response.data.user.avatar
+                    ? `/storage/${response.data.user.avatar}`
+                    : '/images/default-avatar.png'
+            );
+
+            if (typeof onProfileUpdate === 'function') {
+                onProfileUpdate(response.data.user);
+              }
+
+        setNotification({ message: 'Profile updated successfully!', type: 'success' });
+        } catch (error) {
+            setNotification({ message: 'Profile update failed!', type: 'error' });
+        }
     };
     
 
     return (
         <section className={className}>
+            {notification && (
+                <Notification 
+                    message={notification.message} 
+                    type={notification.type} 
+                    onClose={() => setNotification(null)}
+                />
+             )}
             <header>
                 <h2 className="text-lg font-medium text-gray-900">
                     Profile Information
@@ -124,7 +155,7 @@ export default function UpdateProfileInformation({
                     <InputLabel htmlFor="avatar" value="Avatar" />
                     
                     <img 
-                        src={user.avatar ? `/storage/${user.avatar}` : `/images/default-avatar.png`} 
+                        src={avatarPreview}
                         onError={(e) => e.currentTarget.src = '/images/default-avatar.png'}
                         className="w-60 h-60 rounded object-cover border border-gray-300 shadow-md"
                         alt="User Avatar"
@@ -134,14 +165,25 @@ export default function UpdateProfileInformation({
                         id="avatar"
                         type="file"
                         className="mt-1 block w-full"
-                        onChange={(e) => setData('avatar', e.target.files[0])}
+                        onChange={(e) => {
+                            const file = e.target.files && e.target.files[0];
+                            if (file && file instanceof File) {
+                                setData('avatar', file);
+                                setAvatarPreview(URL.createObjectURL(file));
+                            } else {
+                                console.error('The selected item is not a valid file.');
+                                alert("Not a valid file");
+                            }
+                        }}
                     />
 
                     <InputError className="mt-2" message={errors.avatar} />
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                    <PrimaryButton disabled={processing || !hasChanged}>
+                        Save
+                    </PrimaryButton>
 
                     <Transition
                         show={recentlySuccessful}

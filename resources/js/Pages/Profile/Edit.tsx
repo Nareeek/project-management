@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
-import { Head } from '@inertiajs/react';
+import { useState } from 'react';
+import { Head, usePage } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
@@ -9,6 +10,13 @@ export default function Edit({
     mustVerifyEmail,
     status,
 }: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
+    const { auth } = usePage().props;
+    const [user, setUser] = useState(auth.user);
+
+    const handleProfileUpdate = (updatedUser) => {
+        setUser(updatedUser);
+    };
+    
     return (
         <AuthenticatedLayout
             header={
@@ -26,6 +34,7 @@ export default function Edit({
                             mustVerifyEmail={mustVerifyEmail}
                             status={status}
                             className="max-w-xl"
+                            onProfileUpdate={handleProfileUpdate} // Pass the function here
                         />
                     </div>
 

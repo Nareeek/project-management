@@ -99,6 +99,28 @@ cd ../frontend
 npm install
 ```
 
+
+#### Install React with TypeScript
+
+If you haven't already installed React with TypeScript, follow these steps:
+```sh
+cd frontend
+npm create vite@latest
+```
+
+Select:
+
+Framework: React
+
+Variant: TypeScript
+
+
+Then continue with:
+```sh
+npm install
+npm run dev
+```
+
 #### **Run Development Server**  
 ```sh
 npm run dev

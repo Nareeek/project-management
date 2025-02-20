@@ -32,7 +32,6 @@ A **full-stack web application** for managing users, projects, and tasks efficie
 
 ```
 /project-management
-│── backend/ (Laravel API)
 │── frontend/ (React App)
 │── README.md
 │── .gitignore
@@ -48,8 +47,8 @@ A **full-stack web application** for managing users, projects, and tasks efficie
 Ensure you have the following installed:  
 - [Node.js (LTS version)](https://nodejs.org/)  
 - [Composer](https://getcomposer.org/)  
-- PHP (>= 8.0)  
-- MySQL  
+- [PHP (>= 8.0)](https://www.php.net/downloads.php)
+- [MySQL](https://www.mysql.com/downloads)
 
 ### 2️⃣ **Clone the Repository**  
 ```sh
@@ -60,7 +59,6 @@ cd project-management
 ### 3️⃣ **Backend Setup (Laravel API)**  
 #### **Install Dependencies**  
 ```sh
-cd backend
 composer install
 ```
 
@@ -74,15 +72,17 @@ Edit the `.env` file and set up your **database credentials**:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=project_management
+DB_DATABASE=your_db_name
 DB_USERNAME=root
-DB_PASSWORD=
+DB_PASSWORD=your_db_password
 ```
 
 #### **Generate Application Key & Migrate Database**  
 ```sh
 php artisan key:generate
 php artisan migrate --seed
+# OR
+php artisan migrate:fresh --seed
 ```
 
 #### **Run Laravel Server**  
@@ -95,31 +95,10 @@ Your **Laravel API** will be available at **`http://127.0.0.1:8000`**.
 
 ### 4️⃣ **Frontend Setup (React Application)**  
 ```sh
-cd ../frontend
 npm install
 ```
 
 
-#### Install React with TypeScript
-
-If you haven't already installed React with TypeScript, follow these steps:
-```sh
-cd frontend
-npm create vite@latest
-```
-
-Select:
-
-Framework: React
-
-Variant: TypeScript
-
-
-Then continue with:
-```sh
-npm install
-npm run dev
-```
 
 #### **Run Development Server**  
 ```sh
@@ -171,11 +150,24 @@ Your **React frontend** will be available at **`http://localhost:5173`**.
 **Fix:** Ensure MySQL is running and `.env` file has the correct credentials.
 
 ### 2️⃣ **Frontend Not Loading**
-**Fix:** Ensure the frontend dependencies are installed correctly:
+**Fix1:** Ensure the frontend dependencies are installed correctly:
 ```sh
-cd frontend
 npm install
 npm run dev
+```
+
+**Fix2:** Ensure the all caches are cleared correctly:
+```sh
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan optimize:clear
+```
+
+**Fix3:** Check if the route exists in routing list:
+```sh
+php artisan route:list
 ```
 
 ### 3️⃣ **CORS Issues When Making API Calls**
